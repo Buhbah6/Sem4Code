@@ -1,0 +1,442 @@
+# Transport Layer
+	## Transport Service
+		### Services Provided to the Upper Layers
+			#### Goal is to provide efficient, reliable, data transmission to the app layer
+			#### Can be connectionless and connection-oriented
+			#### Transport is on User's machines, while network layer is on the routers
+			#### Users can't control Network layer
+		### Transport Service Primitives
+			#### LISTEN - Block until some process tries to connect
+			#### CONNECT - connection request segment - Actively attempt to establish a connection
+			#### SEND - data segment - Send info
+			#### RECEIVE - Block until a DATA segment arrives (from SEND)
+			#### DISCONNECT - disconnect request segment - Request a release of the connection
+			#### SEGMENT - Message sent from the transport layer
+			#### PACKET - Message sent from the network layer
+			#### FRAM - Message sent from the data link layer
+		### Berkley Sockets
+			#### endpoint of communications between processes on a computer network
+			#### Identified by IP address + port number
+			#### Port numbers can be between 0 and 65535
+				##### Well-known ports - 0 to 1023
+				##### Registered ports - 1024 to 49151
+				##### Dynamic & Private ports - 49152 to 65535
+			#### Sockets are between the Transport and Application layers
+			#### IP: 41.199.221.3 ---- Port: 58642 ---- Socket: 41.199.221.3:58642
+			#### Different services/applications will use different ports
+		### Socket Client-Server Primitives
+			#### SOCKET - (S+C) creates a new socket indentified by an int
+			#### BIND - (S) associates a socket with the specified IP address and port
+			#### Only for connection-oriented
+				##### LISTEN - (S) Causes a bound TCP socket to enter listening state
+				##### ACCEPT - (S) Accepts a received incoming attempt to create a new 
+					###### TCP connection from the remote client, and creates a new socket 
+					###### associated with the socket address pair of this connection
+				##### CONNECT - (C) Assigns a free local port number to a socket. It causes an attempt to
+					###### establish a new connection (for connection-oriented protocols)
+			#### Needs extra parameters for connectionless service (datagram)
+				##### SEND - (S+C) Used to send data
+				##### RECEIVE - (S+C) Used to receive data
+				##### CLOSE - (S+C) Causes the system to release resources allocated to a socket
+		### Flow diagram for TCP (3-way handshakes)
+			#### client and server create respective sockets. server binds the socket and listens for connection. (passive open)
+			#### client sends a request for connection and server accepts (3-way handshake using SYN, SYN-ACK, ACK) (active open)
+			#### client sends data whilst server receives then server sends data whilst client receives
+			#### client sends end message and request to close connection (FIN, ACK, FIN+ACK, ACK). 
+			#### resources allocated to socket are released (both sides)
+	## Elements of Transport Protocols
+		### Addressing
+			#### TSAP - Transport Service Access Point : specify a port (Transport Layer)
+			#### NSAP - Network Service Access Point : specify an IP address (Network Layer)
+			#### TSAP Simplified form is initial connection protocol
+				##### This protocol has a process server that acts as a proxy
+				##### intermediary between client request and the server response
+		### Connection Establishment (TCP)
+			#### Client sends SYN statement to server
+			#### Server sends back SYN-ACK
+			#### Client sends ACK statement
+			#### Connection has been established
+		### Connection Release (TCP)
+			#### Client sends a FIN statement to server
+			#### Server sends back ACK statement
+			#### Server sends back FIN+ACK statement
+			#### Client sends ACK statement to server
+			#### The connection has been terminated
+	## UDP - User Datagram Protocol
+		### Introduction
+			#### TCP is connection-oriented
+			#### UDP is connectionless
+				##### Error detection is optional
+				##### multiplexing via ports
+				##### No error recovery or retransmissions
+				##### Used by network management, DNS, Streamed apps, Remote Procedure call, and DHCP
+			#### Source Port - Destination Port
+			#### UDP length - UDP checksum
+		### RPC - Remote Procedure Call
+			#### Client Stub - a library, that represents the server procedures in the client's address space
+			#### Server Stub - a corresponding library procedure, that represents the server procedures
+			#### Marshaling - the process of packing the parameters
+			#### Process
+				##### Client calls Client Stub
+				##### Client stub sends a message to the system and puts parameters in the message
+				##### The system sends the message to the server
+				##### The server system passes the message to the Server stub and the parameters are removed
+				##### The Server stub calls the server procedure
+				##### SOAP services: processes the soap request and returns the value to the client using xml format over http
+		### RTP - Real-Time Transport Protocol
+			#### Beside RPC, UDP is used for real-time multimedia
+			#### the RTP header is inside the UDP header with the payload inside the UDP payload
+			#### RTP Header consists of:
+				##### Version (2 bits)
+				##### P (1 bit) - the packet is padded to a multiple of 4 bytes
+				##### X (1 bit) - 1 extension header is present. Extension header is not defined but the first 32 bits define its length
+				##### CC (4 bits) - number of contributing sources from 0 to 15
+				##### M (1 bit) - application specific marker. Can marks the beginning of a video frame.
+				##### Payload Type (7 bits) - encoding algorithm used. MP3, MP4, etc
+				##### Sequence Number (16 bits) - increased for each packet sent
+				##### Timestamp (32 bits) - denotes when the first sample in the packet was made
+				##### Synch Source Identifier (32 bits) - tells to which stream the packet belongs
+				##### Contributing Source Identifier (32 bits) - if used lists the streams being mixed
+	## TCP - Transmission Control Protocol
+		### Key Features
+			#### Point to point
+			#### TCP makes segments
+			#### Max segment size
+			#### Connection-oriented -> handshake
+			#### Full Duplex
+			#### Reliable
+			#### Control flow to avoid receiver buffer overflow
+			#### Congestion control to avoid network router buffer overflow
+		### TCP Header
+			#### Source Port (16 bits)
+			#### Destination Port (16 bits)
+			#### Sequence Number (32 bits) - indicates quantity of data sent in session
+			#### ACK number (32 bits) - used by the receiver to request the next TCP segment
+			#### Header Length (4 bits)
+			#### CWR (1 bit) - Congestion Window Reduced - Set to signal that the sender has slowed down
+			#### ECE (1 bit) - Explicit Congestion Notif - Set to signal an ECN-Echo
+			#### URG (1 bit) - Urgent pointer - Set to signal the urgent pointer is in use
+			#### ACK (1 bit) - Set to indicate the ACK number is set
+			#### PSH (1 bit) - Pushed data to be sent to the app, not the buffer
+			#### RST (1 bit) - Reset to reset the connection
+			#### SYN (1 bit) - used for the initial 3-way handshake connection request
+			#### FIN (1 bit) - used to release a connection
+			#### Window Size (16 bits) - specifies how many bytes the receiver is willing to receive.
+			#### Checksum (16 bits) - used for a checksum to check if the TCP header is OK or not
+			#### Urgent Pointer - if URG is set to 1, points at the offset from the sequence num where the urgent data is
+			#### Options - various options such as MSS
+	## TCP VS UDP
+		### TCP
+			#### Connections
+			#### Bytes are delivered once, reliably, in order
+			#### Arbitrary length content
+			#### Flow control matches sender and receiver
+			#### Congestion control matches sender to network
+		### UDP
+			#### Datagrams
+			#### Messages may be lost, reordered, duplicated
+			#### Limited size
+			#### Can send regardless of receiver state
+			#### Can send regardless of network state
+
+# Application Layer 1
+	## Applications have evolved steadily since the early days of emails, and internet browsing
+		### Social media, audio and video conferencing, and streaming are all done through the internet now
+	## Dynamic Host Configuration Protocol
+		### Provides config info to hosts, and maintains a pool of available addresses
+		### New host sends special message, DHCP relays the message to the server
+		### Server sends config to DHCP agent, and such info is forwarded to the client
+	## Domain Name System
+		### ARPANET days
+			#### hosts.txt listed all computer names and IP addresses
+			#### Hosts fetched the file nightly
+			#### Worked well at the time
+		### The internet grew
+			#### file became quite large
+			#### needed central management to avoid conflicts
+		### DNS
+			#### Hierarchical naming scheme
+			#### Distributed database system implements it
+			#### It maps host names to IP addresses (Resolution)
+			#### Goals
+				##### Easy to manage
+				##### Efficient
+			#### Approach
+				#### Distributed directory based on namespace
+				#### Automated protocol to tie pieces together
+		### Stub resolver
+			#### sends a query to the DNS resolver containing the name
+			#### DNS performs recursive lookup for the name against other resolvers
+			#### Returns the corresponding IP to the stub resolver
+			#### Stub resolver passes the result to the function that sent the query
+			#### Query and Response sent as UDP packets
+			#### Program can use the IP to communicate with the host of the name it queried
+		### Domain Names
+			#### Sub-Domain -> www.store
+			#### Name -> .google
+			#### Extension -> .com
+			#### Relative or Absolute
+			#### Case insensitive
+			#### No rule against multiple registrations of top-level domain
+			#### Each domain controls how it allocates the domain under it
+			#### To create a new domain, the permission of the included domain is required (store.google.com needs to be approved by google.com)
+		### DNS Queries
+			#### Another purpose of DNS is to blacklist spammers and malware
+			#### Can be recursive (calls itself for resolution and returns answer)
+			#### Or Iterative (returns the answer or who to call next for it)
+				##### Verify the IP isn't stored locally
+				##### Ask the DNS Recursive Resolver to find the IP
+				##### It will send a request to the ROOT Name Server
+				##### It will then send a request to the TDL Server (Top-Level Domain)
+				##### It sends a request to the Authoritative Nameserver
+				##### It will receive the IP and add it to the DNS table, then return it
+				##### Client contacts IP server
+				##### Server responds with the requested page
+			#### Record Types
+				##### SOA - Start of Authority
+				##### A - IPv4 address of host
+				##### AAAA - IPv6 ^^
+				##### MX - Mail Exchange
+				##### CNAME - Canonical Name
+	## Electronic Mail (email)
+		### Architecture and services
+			#### Message Transfer Agent - Move email through the system from originator to recipient using SMTP
+				##### SMTP - Simple Mail Transfer Protocol
+				##### Implements mailing lists
+				##### Other features: carbon copies, high-priority, secret, alternative recipients, and auto email access
+			#### Mailbox -> Inbox maintained by mail server and served to user by user agent
+		### The user agent
+			#### Manipulates mailbox to allow user to interact with it
+			#### Can create Mail folders
+		### Message formats
+			#### RFC 5322 - Internet Message Format
+				##### Basic ASCII
+				##### Latest Revision of the original
+			#### MIME - The multipurpose internet mail extensions
+				##### Multimedia extensions to the basic format
+		### Different Elements of an email
+			#### To -> primary recipient email
+			#### Cc -> secondary recipient email
+			#### Bcc -> blind carbon copy
+			#### From -> sender name
+			#### Sender -> sender email
+			#### Received -> line added by each transfer agent along the route
+			#### Return-Path -> can be used to identify a path to the sender
+		### Added Details
+			#### MIME-Version -> Identifies the MIME version
+			#### Content-Description -> content of email
+			#### Content-Id -> Identifier
+			#### Content-Transfer-Encoding -> how the body is wrapped for transmission
+			#### Content-Type -> Type and format of the content
+		### Message transfer
+			#### SMTP - Simple Mail Transfer Protocol
+				##### sending computer creates TCP connection to port 25 or receiver
+				##### port is listened to by server that speaks SMTP
+				##### DOES NOT INCLUDE AUTHENTICATION
+				##### Extensions can help with this ^^
+			#### DNS helps to identify mail server
+		### Final delivery
+			#### IMAP - Internet Message Access Protocol
+			#### Improvement over POP3 (Post Office Protocol 3)
+			#### Alternatively, there are Webmail systems like Gmail and Outlook ;)
+
+# Application Layer 2
+	## The World Wide Web
+		### Opening a web page means a TCP between browser and web server that uses HTTP commands
+		### The client side - 3 questions
+			#### What is the page called
+			#### Where is the page located
+			#### How can the page be accessed
+		### When a link selected
+			#### Browser determines URL
+			#### Browser asks DNS for IP address
+			#### DNS replies
+			#### Browser makes a TCP connection
+			#### Sends HTTP request for the page
+			#### Server sends the page as HTTP response
+			#### Browser fetches other URLs as needed
+			#### Browser displays the page
+			#### The TCP connections
+		### The server side
+			#### Accept a TCP con from a client
+			#### Get the path to the page
+			#### Get the file from the disk
+			#### Send the contents of the file to client
+			#### Release the TCP con
+			#### Modern Web Servers have more features
+			#### For Dynamic content -> a program is executed that generates and returns the contents
+			#### Server Design Problem
+				##### Slow disk access bottleneck
+					###### Maintain a cache in memory
+				##### One request processed at a time
+					###### Make the server multithreaded
+			#### Modern Web architectures use a split between a front end and a back end
+			#### Front-end Web server (reverse proxy)
+				##### Retrieves content from other (typically back-end) servers
+				##### Serves those objects to the client
+				##### Acts on behalf of the servers - not on the behalf of clients
+		### Static objects
+			#### Files sitting on a server, always appearing the same way
+			#### Examples: logo, style sheets, header and footer
+			#### Can generally be cached
+		### Most Web pages have dynamic content
+			#### significant amount remains static
+		### Web page design
+			#### HTML and CSS
+			#### programs (Dreamweaver)
+		### HTTP / HTTPS methods
+			#### GET - Read a web page
+			#### HEAD - Read the header^
+			#### POST - Append to a web page
+			#### PUT - Store a web page
+			#### DELETE - Remove the web page
+			#### TRACE - Echo the incoming request
+			#### CONNECT - Connect through a proxy
+			#### OPTIONS - Query options for a page
+		### Web Privacy
+			#### Cookies
+			#### Third-party trackers
+			#### Device and browser fingerprinting
+			#### Cookie syncing
+		### Streaming audio and video
+			#### Digital Audio
+			#### Digital Video
+			#### Streaming stored media
+			#### Real-time streaming
+	## Server Farms
+		### Load Balancer
+			#### distributes network or app traffic across a number of servers
+			#### acts as a reverse proxy (increased capacity and reliability of applications)
+			#### ensures that no one server is overworked
+			#### similar to a traffic cop (routes requests across capable servers to maximize speed and capacity)
+	## Web Proxies
+		### Used to share a cache among users.
+		### Proxy is an agent that acts on behalf of someone else
+	## Content Delivery Networks
+		### Efficient distribution of popular content -> SPEED
+		### Uses replicas to reduce distance from client to server (units in network hops)
+		### Distributes to CDN nodes for different regions
+		### CDN node is used in harmony with DNS -> Clients use DNS to find their respective CDN node
+	## Peer-To-Peer Networks (P2P)
+		### Uses client machines as sources for other clients to retrieve torrent data from
+		### Square and Airtags technically use P2P in a sense
+	## Evolution of the Internet
+		### Started from Point-to-Point communications
+		### Now we use Cloud servers and CDNs
+		### Large amounts of data is being exchanged constantly
+
+# Network Security
+	## Various people can and will attempt to breach networks for many reasons
+	## Fundamentals of Network Security are
+		### Confidentiality - Keep info from unauthorized users
+		### Integrity - Make sure what is sent is also what is received
+		### Availability - Keep systems and services usable
+		### Authentication - Determine who you are talking to before revealing sensitive information
+		### Nonrepudiation deals with signatures
+	## Attackers may use
+		### Reconnaissance
+			#### Gain information about an organization
+			#### Probe for active port (port scanning)
+			#### Traceroute - Finds the path toward the original IP address of data passed
+		### Sniffing
+		### Spoofing
+			#### SMTP "From:" header
+			#### DNS spoofing
+			#### TCP spoofing
+				##### Connection spoofing
+				##### Connection hijacking
+			#### Off-path TCP exploits
+		### Disruption (DDOS attacks)
+			#### DOS attacks
+			#### Attacks on availability (bringing down a system)
+			#### Occurs when a victim receives data is cannot handle
+			#### May stop responding due to
+				##### Crashes
+				##### Algorithmic Complexity
+				##### Flooding
+			#### SYN flooding (Too many requests to acknowledge)
+			#### Reflection and amplification in DDoS
+			#### Defending against DDoS
+	## Solutions consist of
+		### Monitoring the network
+		### Address system-related issues of data confidentiality
+		### Symmetric and public key cryptography
+		### Digital signatures and key management
+		### Observe fundamental problems of secure authentication
+		### Review technologies providing communication security
+		### Understand email security problem
+		### Review security in the wider Web domain
+		### Understand social issues regarding security
+	## Encryption (SLIDE 10)
+		### Symmetric-key Algorithm (DES, RC5, AES)
+			#### Sender creates complex encryption key and shares the key with the receiver for decryption
+			#### easier to implement and faster than asymmetric-key algorithms but the key has to be shared
+		### Asymmetric-key Algorithm (DSA, RSA)
+			#### Sender shares the public key and the receiver creates a private key with which to decrypt
+			#### the decryption key is not shared although it is slower than symmetric key algorithms
+		### Hashing Algorithm
+			#### non invertible, injective, f(X) does not equal F(Y)
+			#### MD5: proven to be broken. does not minimize collisions
+			#### SHA: NSA, SHA-3: non-NSA
+		### Digital Signatures
+			#### we want to send a message such that the receiver knows that it is from us
+			#### 2 functions: SIGN and VERIFY											
+			#### SIGN: applies hashing functin on the message
+			      	##### encrypts the hash result using sender's private key (sender's signature)
+			     	##### sends message and the signature to the receiver
+			#### VERIFY: applies hashing function on the message
+				##### decrypts signature using sender's public key
+				##### check if results are the same
+		### Secure Communication Over Internet (HTTP/FTP)
+			#### SSL/TLS - Transport Layer Security (relies on a set of trusted third-party certificates)
+				##### certificate authority issues certificate
+				##### version, serial number, signature algorithm, issuer, validity period,
+				##### subject name, public key, issuer id, subject id, extensions, signature
+			#### send get request (client hello), server responds with a secure certificate
+			#### client verifies certificate signature 
+			#### client verifies if certificate domain matches user url
+			#### client verifies certificate validity
+			#### if all fine: generate symmetric encryption key and encrypt using public kyey from certificate
+			#### server communicates using public key and client decrypts using private key from ^^
+		### VPN
+			#### A network built up from company computers and leased telephone lines is called a private network
+			#### works fine if all computers are in the same location
+			
+			#### Algorithm:
+				##### the VPN client from home computer encrypts your data traffic and sends it to the VPN server
+				##### the encrypted data from your computer is decrypted by the server
+				##### the server sends data on the private network
+				##### all data from the private network is sent to the server that encrypts is and sends it through the internet
+				##### to your home computer
+				##### the vpn client from the home computer will decrypt the data and send it to the corresponding process
+				
+1. how does the server knows which tab to send a server request to?
+	because of the different ports. the server's default port is 80 but the services has 
+	different ports randomly selected. (??????????????????)
+
+2. Name at least three different primitives.
+	Listen, Send, Receive, Connect, Disconnect
+
+3. What are the dynamic and static ports
+
+4. Name and describe 3 fields from the UDP header
+	source and target ports, length
+
+5. Why do we need a DNS
+	to associate a domain name to an IP address
+	the DNS stores the connection so the name doesn't change
+
+6. What is the top level domain, give two examples
+. com, .ca
+
+7. what is the role of the bcc in the eamil message header
+
+8. explain the difference between server side scripting and client side scripting
+
+9. What is the load balancer and how does it work
+
+10. what is the role of a hashing algorithm
+
+11. what is a digital signature
+
+			

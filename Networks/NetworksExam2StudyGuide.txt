@@ -1,0 +1,255 @@
+Networks Exam 2 Study Guide
+
+*** Course 6 - Medium Access Control Sublayer ***
+
+# Data Transmission Models
+	## Channel Allocation Problem
+		### Static Channel Allocation
+			#### Uneven data traffic
+			#### Performance affected when peak traffic to mean traffic ratios are 1000:1
+			#### Most channels will be idle
+		### Dynamic Channel Allocation
+			#### Independent traffic
+				##### independent stations have a program that generates a fram and then transmits it
+			#### Single Channel
+				##### Only 1 channel for all communication
+			#### Observable collisions
+				##### if 2 frames are transmitted at the same time, they overlab and the signal is messed up
+				##### this is called a collision
+				##### all stations can detect that a collistion has occurred
+			#### Continuous or slotted time
+				##### continuous means it can occur at any moment
+				##### slotted means at discrete intervals (can only begin at the start of a slot)
+			### Carrier sense
+				##### station can tell if the channel is in use before trying to use it
+				##### senses a frame being carried through the channel
+
+# Multiple Access Protocols
+	## ALOHA
+		### Each node transmits whenever they need
+		### if collision occurs, the station tries again after some time, until the frame is transmitted successfully
+		### Pure ALOHA
+			#### Continuous transmission
+		### Slotted ALOHA
+			#### Slotted transmission
+			#### Time slot synchro can be achieved by one special station emitting a pip at each slot
+	## Carrier Sense Multiple Access
+		### Persistent and nonpersistent
+			#### 1-persistent CSMA
+				##### high chance of collisions
+				##### sense and transmit
+			#### nonpersistent CSMA
+				##### check-wait-check-wait-check-transmit
+			#### p-persistent CSMA
+				#### 1-persistent but transmit at intervals with probability 'p'
+		### CSMA with collision detection
+			#### Basis of Ethernet LAN
+			#### Listen while sending
+			#### if collision is occuring it is a contention period
+			#### a wait of 2T is necessary to detect collisions
+			#### after 2T, the station is occupying the channel
+	## Collision-Free Protocols
+		### Bit-map protocol
+			#### Each station represents a bit on the bitmap
+			#### the earlier station in the bitmap will have "reservation"
+			#### stations queue up to transmit data
+			#### no risk of collisions
+		### Token passing
+			#### a token is sent around (circle) to all stations in a predefined order
+			#### only the station that has the token can transmit data
+			#### if it doesn't need to transmit, it passes on the token to the next station
+		### Binary countdown
+			#### prior-mentioned protocols do not scale well for a lot of stations
+			#### during contention each station broadcasts each unique address
+			#### transmission is done in priority of highest number (OR gate)
+	## Limited-Contention Protocols
+		### light load means contention protocols are preferable
+		### heavy load means collision-free is preferable
+		### these are symmetric meaning each station tries to acquire the channel with the same probability
+		### Limited-Contents protocols are asymmetric
+		### Adaptive Tree Walk Protocol
+			#### if collision occurs, in the next contention slot the same algorithm is considered for the tree with root 2
+			#### this continues exponentially
+	## Wireless LAN protocols
+		### Radio Range needs to be considered
+		### Hidden Terminal problem
+			#### 2 stations try to transmit to the same station but can't detect the other
+			#### this is because they are outside of eachothers range
+			#### this causes a collision
+		### Exposed Terminal problem
+			#### if two stations try to transmit to other stations, but are close together
+			#### they will sense the other trying to transmit and falsely conclude that they cannot transmit
+		### Multiple Access with Collision Avoidance (MACA)
+			#### Sender makes receivers output a short frame
+			#### other stations will detect this and avoid transmitting
+			#### Sender sends RTS (Request To Send)
+			#### Receiver sends CTS (Clear To Send)
+# Ethernet
+	## Classic Ethernet
+		### larger networks use repeaters to amplify signals
+		### DIX standard frame format
+			#### Preamble
+			#### Destination Address
+			#### Source Address
+			#### Type
+			#### Data
+			#### Pad
+			#### Checksum
+		### Ethernet IEE 802.3
+			#### Preamble
+			#### SoF
+			#### Destination Address
+			#### Source Address 
+			#### Length
+			#### Data
+			#### Pad
+			#### Checksum
+		### minimum frame size must be greater than 2T
+		### A will be alerted that a collision occurred
+		### Classic Ethernet is hard to maintain
+	## Switched Ethernet
+		### A hub sends out received messages on all lines except the sender
+		### A switch sends out received messages to their specific destination (MAC Address)
+
+# Wireless LAN (802.11)
+	## Architecture and Protocol Stack
+		### Infrastructure mode
+			#### Uses an Access Point to transmit between systems
+			#### Several APs form a distribution system
+		### ADO-HOC mode
+			#### Computers send frames directly to eachother
+	## Physical layer
+		### 802.11 -> remote controls in the 2.4 GHz band
+		### 802.11a -> OFDM in the 5 GHz
+		### 802.11b -> 1-2 Mbps extended to 11 Mbps
+		### 802.11g -> like 802.11a but in the 2.4 GHz band allowing up to 54 Mbps
+		### 802.11n -> up to 600 Mbps
+		### 802.11ax -> up to 9.6Gbps
+	## MAC Sublayer Protocol
+		### collision protocols for ethernet do not work
+		### CSMA with Collision Avoidance
+			#### Sender waits random time and sends (if idle) and waits for acknowledgement
+			#### if no acknowledgement, wait a random time and send again
+			#### Hidden Terminal and Exposed Terminal come into play here
+				##### Each frame contains a NAV that is a set time
+				##### during NAV the station will refrain from sending
+	## Frame Structure
+		### Frame Control
+		### Duration
+		### Address 1 (recipient)
+		### Address 2 (transmitter)
+		### Address 3
+		### Sequence
+		### Data
+		### Check Sequence
+	## Services
+		### Association
+			#### upon arriving within range of an AP, A station gets information from the AP
+			#### Beacon frames or direct request
+			#### includes capabilities and Identity
+		### Reassociation
+			#### Changes a station's preferred AP
+		### Authentication
+			#### WEP (Wired Equivalent Privacy)
+				##### Authentication with a preshared key
+				##### Easy to compromise
+				##### before association
+			#### WPA2 (WiFi Protected Access 2)
+				##### authentication server with database of users
+				##### verifies authentication credentials of a station
+				##### After association
+		### Distribution
+			#### How to route frames that reach the AP
+		### Integration
+			#### any translation to be sent outside the 802.11 LAN
+			#### any translation to be received from outside the 802.11 LAN
+		### Data Delivery
+			#### transmit and receive data
+			#### higher layers must deal with detecting and correcting errors
+		### Privacy
+			#### Encryption and Decryption
+			#### WPA2 is based on AES - Advanced Encryption Standard
+			#### AES keys are determined during the authentication procedure
+		### QOS traffic scheduling
+			#### voice and video traffic receive preferential treatment
+
+# Data Link Layer Switching
+	## Bridges
+		### Used to join LANs together
+		### Trunk
+		### Need to have a hash table with all destinations
+		### Bridges learn with time (backward learning)
+		### Routing procedure
+			#### if source and destination are the same, discard
+			#### if they are different, send to destination
+			#### if destination is unknown, use flooding
+			#### MAC address is early in the fram so the bridge can disregard fast
+				##### cut-through switching or wormhole routing
+	## Virtual LANs
+		### Security
+			#### Separate things based on purpose and security needs
+		### Load
+			#### Some have heavier usage
+		### Broadcast traffic
+		### VLANs
+			#### separate LANs entirely in software
+		### 802.1Q contains VLAN Identifier
+
+*** Course 7 - Network Layer ***
+
+# Network Layer
+	### Data Link moves frames from one end of the wire to the other
+	### Network Layer handles routing
+
+# Connectionless service
+	## Packets are routed independently of each other
+	## Packets = datagrams
+	## Network is called a datagram network
+		### no circuit setup
+		### full source and destination
+		### do not hold state information about connections
+		### each packet is independent of another
+		### no effect from router failures except lost packets
+		### difficult to service
+		### difficult congestion control
+
+# Connection-Oriented service
+	## path is determined before sending
+	## this is a virtual circuit
+		### Circuit setup is required
+		### each packet contains a short VC number
+		### Each VC needs the router table space
+		### Route chosen when VC is set up
+		### All VCs that pass through a failed router are terminated
+		### easy to service
+		### easy to control congestion
+
+# Routing Algorithms
+	## nonadaptive (static) algorithms
+		### routes are computed in advance and downloaded when the network is booted
+	## Adaptive (dynamic) algorithms
+		### change their routing to reflect changes in the topology
+	## The optimality principle
+		### if a router is on the optimal path between 2 others, 
+		### then the path from that router to either of the other ones is optimal
+
+# Routing Algorithms (2)
+	## Shortest Path
+		### Computes shortest path using Dijkstra's algorithm
+	## Flooding
+		### Every incoming packet goes out to every line aside from the sender
+		### A hub does this
+	## Distance Vector Routing
+		### Uses router tables to determine path
+		### if a node is down, all routers consider distance to it as infinite
+		### when the node comes back up, all nodes communicate it's return (Good news propagation is fast)
+		### Bad news propagation -> all routers must set distance to infinity with routes being rapidly updated (counting)
+	## Link State Routing
+		### Replaced Distance Vector
+			#### Discover neighbours + addresses
+			#### Set distance/Cost
+			#### put info in packet
+			#### Send packet and receive all other packets from other routers
+			#### compute shortest path to all other routers
+
+# Internetworking

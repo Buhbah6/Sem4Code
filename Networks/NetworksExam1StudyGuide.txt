@@ -1,0 +1,35 @@
+## Bitmap protocol
+	# Each station represents a bit on a bitmap and it's used to eliminate collisions slide 24
+
+## Hidden Terminal
+	# Wireless stations send data to the same middle station but the radio range is not long enough for both
+	# transmitting stations to see the other sending a transmission.
+
+## Classic ethernet
+	# Preamble
+	# SoF (Start of Frame)
+	# Destination Address
+	# Source Address
+	# Type
+	# Data
+	# Pad
+	# Checksum
+
+## CSMA 1-persistent
+	# CS - Carrier Sense means they can see when the channel is busy
+	# When the channel is not busy, wait a random time, then send again
+	# if collision is detected, wait a random time, then send again
+
+## Hub transmits to the entire network (connected to it)
+## Switch transmits to the target MAC address
+
+## Network layer -> handles routing
+
+## Flooding algorithm
+	# Like a hub but for routing
+	# hop counter keeps from infinite loops
+
+## Distance Vector Routing - uses Dijkstra's Algorithm and __TABLE__
+
+## IP Address
+	# 32 bits
